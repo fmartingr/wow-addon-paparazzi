@@ -677,7 +677,7 @@ Commit each task on its own with Conventional Commits (D20). Do not push.
   - [ ] Docs and config that describe the changed behavior are updated.
   - [ ] Task heading checkbox ticked; changes committed.
 
-### [ ] 7. Go exporter `paparazzi-export`, with its CI jobs and Makefile targets
+### [x] 7. Go exporter `paparazzi-export`, with its CI jobs and Makefile targets
 
 - **Outcome:** `paparazzi-export --wow-dir "<…>/_retail_"` writes a JSON sidecar for each matched capture. CI checks the Go code.
 - **Depends on:** Task 2 (`ci.yml` to extend), Task 3 (capture record schema 1).
