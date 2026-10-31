@@ -3,6 +3,7 @@ SHELL := bash
 .DEFAULT_GOAL := help
 
 LUA_COVERAGE_MIN ?= 80
+BUSTED_FLAGS ?=
 
 LR_PATH := $(shell luarocks --lua-version=5.1 --local path --lr-path 2>/dev/null)
 LR_CPATH := $(shell luarocks --lua-version=5.1 --local path --lr-cpath 2>/dev/null)
@@ -39,13 +40,13 @@ fmt: ## Format the Lua code
 test: test-lua ## Run all tests
 
 test-lua: ## Run the busted tests
-	busted
+	busted $(BUSTED_FLAGS)
 
 coverage: coverage-lua ## Run tests with coverage thresholds
 
 coverage-lua: ## Run busted with luacov
 	rm -f luacov.stats.out luacov.report.out
-	busted --coverage
+	busted --coverage $(BUSTED_FLAGS)
 	luacov
 	@total=$$(awk '$$1 == "Total" { gsub("%", "", $$NF); print $$NF }' luacov.report.out); \
 	echo "Lua coverage: $$total% (min $(LUA_COVERAGE_MIN)%)"; \

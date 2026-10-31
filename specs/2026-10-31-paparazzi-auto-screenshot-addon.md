@@ -308,7 +308,7 @@ Commit each task on its own with Conventional Commits (D20). Do not push.
   - [ ] Docs and config that describe the changed behavior are updated.
   - [ ] Task heading checkbox ticked; changes committed.
 
-### [ ] 2. PR CI workflow and Dependabot
+### [x] 2. PR CI workflow and Dependabot
 
 - **Outcome:** each pull request and each push to `main` runs the Lua lint, format, test, coverage, and packager dry-run jobs. A failure blocks the run.
 - **Depends on:** Task 1 (config files and Makefile targets).
