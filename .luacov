@@ -1,0 +1,5 @@
+return {
+	include = { "^src/" },
+	exclude = { "^src/Settings$" },
+	reporter = "default",
+}

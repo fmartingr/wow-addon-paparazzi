@@ -1,0 +1,6 @@
+.release/
+build/
+luacov.*.out
+.lua/
+.luarocks/
+coverage.out

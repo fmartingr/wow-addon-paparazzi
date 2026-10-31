@@ -1,0 +1,12 @@
+package-as: Paparazzi
+ignore:
+  - spec
+  - specs
+  - docs
+  - cmd
+  - internal
+  - testdata
+  - scripts
+  - Makefile
+  - go.mod
+  - go.sum
