@@ -6,6 +6,7 @@
 ## SavedVariables: PaparazziDB
 ## IconTexture: Interface\AddOns\Paparazzi\assets\paparazzi-icon
 ## X-License: GPL-3.0-or-later
+## X-Curse-Project-ID: 1775864
 ## AddonCompartmentFunc: Paparazzi_OnAddonCompartmentClick
 
 src\Init.lua
