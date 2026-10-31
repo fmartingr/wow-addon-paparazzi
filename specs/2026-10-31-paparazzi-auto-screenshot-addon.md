@@ -350,7 +350,7 @@ Commit each task on its own with Conventional Commits (D20). Do not push.
   - [ ] Docs and config that describe the changed behavior are updated.
   - [ ] Task heading checkbox ticked; changes committed.
 
-### [ ] 3. Capture engine, trigger registry, and the "Level up" trigger
+### [x] 3. Capture engine, trigger registry, and the "Level up" trigger
 
 - **Outcome:** in game, a level up makes one screenshot after 1 s and appends one capture record to `PaparazziDB.captures`. Simultaneous triggers merge into one screenshot. This is the full pipeline that the other triggers use.
 - **Depends on:** Task 1 (`ns` helpers, fake WoW API, Makefile).

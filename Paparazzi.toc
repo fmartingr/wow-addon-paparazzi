@@ -8,3 +8,9 @@
 ## X-License: GPL-3.0-or-later
 
 src\Init.lua
+src\DB.lua
+src\Debouncer.lua
+src\Capture.lua
+src\Triggers.lua
+src\triggers\Progress.lua
+src\Core.lua
