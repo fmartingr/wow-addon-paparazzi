@@ -72,6 +72,7 @@ describe("Core", function()
 
 	it("prints usage for other arguments without a settings panel", function()
 		boot(nil)
+		ns.Settings = nil
 		SlashCmdList.PAPARAZZI("")
 		assert.matches("usage", wow.chat[1])
 	end)

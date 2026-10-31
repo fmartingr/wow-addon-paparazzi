@@ -36,3 +36,5 @@ Write `pass` or `fail` and the date in each cell.
 | `trade` | Accept a trade on one side (enable it first). | | | | | | | |
 | `login` | Log in (enable it first). `/reload`: no image. | | | | | | | |
 | `firstVisit` | Enter a new zone (enable it first). Login: no image. | | | | | | | |
+| Settings panel | Open **Options → AddOns → Paparazzi** and `/paparazzi`. Switch a trigger off, then `/reload`. The value stays. | | | | | | | |
+| Addon compartment | Click the Paparazzi entry in the addon compartment (Retail, Forever). The panel opens. | | | | | | | |

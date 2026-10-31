@@ -184,6 +184,75 @@ function wow.reset(opts)
 		end,
 	}
 	_G.SlashCmdList = {}
+	wow.install_settings()
+end
+
+function wow.install_settings()
+	wow.categories = {}
+	wow.opened = nil
+	_G.Settings = {
+		VarType = { Boolean = "boolean", Number = "number" },
+		RegisterVerticalLayoutCategory = function(name)
+			local category = { name = name, items = {}, id = #wow.categories + 1 }
+			function category:GetID()
+				return self.id
+			end
+			wow.categories[#wow.categories + 1] = category
+			return category
+		end,
+		RegisterAddOnSetting = function(category, variable, key, tbl, varType, name, default)
+			local setting =
+				{ variable = variable, key = key, tbl = tbl, varType = varType, name = name, default = default }
+			function setting:GetValue()
+				return self.tbl[self.key]
+			end
+			function setting:SetValue(v)
+				self.tbl[self.key] = v
+				if self.callback then
+					self.callback(self, v)
+				end
+			end
+			function setting:SetValueChangedCallback(fn)
+				self.callback = fn
+			end
+			category.settings = category.settings or {}
+			category.settings[variable] = setting
+			return setting
+		end,
+		CreateCheckbox = function(category, setting, tooltip)
+			category.items[#category.items + 1] = { type = "checkbox", setting = setting, tooltip = tooltip }
+		end,
+		CreateSliderOptions = function(min, max, step)
+			local options = { min = min, max = max, step = step }
+			function options:SetLabelFormatter(_, fn)
+				self.formatter = fn
+			end
+			return options
+		end,
+		CreateSlider = function(category, setting, options, tooltip)
+			category.items[#category.items + 1] =
+				{ type = "slider", setting = setting, options = options, tooltip = tooltip }
+		end,
+		RegisterAddOnCategory = function(category)
+			category.registered = true
+		end,
+		OpenToCategory = function(id)
+			wow.opened = id
+		end,
+	}
+	_G.MinimalSliderWithSteppersMixin = { Label = { Right = 2 } }
+	_G.CreateSettingsListSectionHeaderInitializer = function(text)
+		return { type = "header", text = text }
+	end
+	_G.SettingsPanel = {
+		GetLayout = function(_, category)
+			return {
+				AddInitializer = function(_, initializer)
+					category.items[#category.items + 1] = initializer
+				end,
+			}
+		end,
+	}
 end
 
 -- A wrapped value stands in for a Midnight secret value.

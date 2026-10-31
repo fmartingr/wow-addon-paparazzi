@@ -6,6 +6,7 @@
 ## SavedVariables: PaparazziDB
 ## IconTexture: Interface\Icons\INV_Misc_Spyglass_03
 ## X-License: GPL-3.0-or-later
+## AddonCompartmentFunc: Paparazzi_OnAddonCompartmentClick
 
 src\Init.lua
 src\DB.lua
@@ -18,4 +19,5 @@ src\triggers\Combat.lua
 src\triggers\PvP.lua
 src\triggers\Loot.lua
 src\triggers\World.lua
+src\Settings.lua
 src\Core.lua

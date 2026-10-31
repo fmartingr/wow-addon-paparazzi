@@ -635,7 +635,7 @@ Commit each task on its own with Conventional Commits (D20). Do not push.
   - [ ] Docs and config that describe the changed behavior are updated.
   - [ ] Task heading checkbox ticked; changes committed.
 
-### [ ] 6. Settings panel, `/paparazzi`, addon compartment
+### [x] 6. Settings panel, `/paparazzi`, addon compartment
 
 - **Outcome:** **Options → AddOns → Paparazzi** shows all the settings. Each change takes effect at once and is saved.
 - **Depends on:** Task 3 (DB layout, registry order, `ns.DB.Trim`). It works with any subset of triggers, so it does not need Tasks 4 and 5.
