@@ -4,6 +4,9 @@ SHELL := bash
 
 LUA_COVERAGE_MIN ?= 80
 GO_COVERAGE_MIN ?= 80
+MAIN ?= main
+REMOTE ?= origin
+DRY_RUN ?=
 BUSTED_FLAGS ?=
 
 LR_PATH := $(shell luarocks --lua-version=5.1 --local path --lr-path 2>/dev/null)
@@ -12,7 +15,7 @@ export PATH := $(HOME)/.luarocks/bin:$(PATH)
 export LUA_PATH := $(LR_PATH);$(LUA_PATH);;
 export LUA_CPATH := $(LR_CPATH);$(LUA_CPATH);;
 
-.PHONY: help check-tools deps lint lint-lua lint-go fmt-check fmt test test-lua test-go coverage coverage-lua coverage-go build export link clean
+.PHONY: help check-tools deps lint lint-lua lint-go fmt-check fmt test test-lua test-go test-release coverage coverage-lua coverage-go build export link clean
 
 help: ## List the targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "%-16s %s\n", $$1, $$2}'
@@ -43,7 +46,7 @@ fmt: ## Format the Lua and Go code
 	stylua .
 	gofmt -w .
 
-test: test-lua test-go ## Run all tests
+test: test-lua test-go test-release ## Run all tests
 
 test-lua: ## Run the busted tests
 	busted $(BUSTED_FLAGS)
@@ -73,6 +76,43 @@ build: ## Build the exporter into build/
 export: ## Run the exporter on WOW_DIR (a flavor folder)
 	@if [ -z "$${WOW_DIR:-}" ]; then echo "WOW_DIR is required, for example .../World of Warcraft/_retail_" >&2; exit 2; fi
 	go run ./cmd/paparazzi-export --wow-dir "$(WOW_DIR)"
+
+test-release: ## Test the release targets in a temporary repository
+	bash scripts/test-release.sh
+
+release-check: ## Check that the tree is ready for a release
+	@if [ -n "$$(git status --porcelain)" ]; then echo "release: the working tree is dirty" >&2; exit 1; fi
+	@branch=$$(git rev-parse --abbrev-ref HEAD); \
+	if [ "$$branch" != "$(MAIN)" ]; then echo "release: the branch is $$branch, not $(MAIN)" >&2; exit 1; fi
+	@git fetch --quiet --tags $(REMOTE) $(MAIN)
+	@if [ "$$(git rev-parse HEAD)" != "$$(git rev-parse $(REMOTE)/$(MAIN))" ]; then \
+		echo "release: HEAD differs from $(REMOTE)/$(MAIN)" >&2; exit 1; \
+	fi
+
+define bump
+	@last=$$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -v -- '-' | head -n 1 || true); \
+	last=$${last:-v0.0.0}; \
+	IFS=. read -r major minor patch <<< "$${last#v}"; \
+	case "$(1)" in \
+		major) major=$$((major + 1)); minor=0; patch=0 ;; \
+		minor) minor=$$((minor + 1)); patch=0 ;; \
+		patch) patch=$$((patch + 1)) ;; \
+	esac; \
+	next="v$$major.$$minor.$$patch"; \
+	echo "$$last -> $$next"; \
+	if [ -n "$(DRY_RUN)" ]; then exit 0; fi; \
+	git tag -a "$$next" -m "Release $$next"; \
+	git push $(REMOTE) "$$next"
+endef
+
+release-patch: release-check ## Tag and push the next patch version
+	$(call bump,patch)
+
+release-minor: release-check ## Tag and push the next minor version
+	$(call bump,minor)
+
+release-major: release-check ## Tag and push the next major version
+	$(call bump,major)
 
 link: ## Link the addon into WOW_DIR (a flavor folder)
 	@if [ -z "$${WOW_DIR:-}" ]; then echo "WOW_DIR is required, for example .../World of Warcraft/_retail_" >&2; exit 2; fi

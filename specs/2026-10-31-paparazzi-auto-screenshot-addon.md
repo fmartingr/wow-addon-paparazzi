@@ -773,7 +773,7 @@ Commit each task on its own with Conventional Commits (D20). Do not push.
   - [ ] Docs and config that describe the changed behavior are updated.
   - [ ] Task heading checkbox ticked; changes committed.
 
-### [ ] 8. Release pipeline, `make release-*`, and release docs
+### [x] 8. Release pipeline, `make release-*`, and release docs
 
 - **Outcome:** `make release-minor` pushes `v0.1.0`. The release workflow publishes the addon zip (CurseForge when configured, and the GitHub Release) and the exporter binaries.
 - **Depends on:** Task 1 (Makefile, `.pkgmeta`), Task 2 (pinned action SHAs), Task 7 (exporter build).

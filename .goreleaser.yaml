@@ -1,0 +1,36 @@
+version: 2
+
+project_name: paparazzi-export
+
+builds:
+  - id: paparazzi-export
+    main: ./cmd/paparazzi-export
+    binary: paparazzi-export
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, windows, darwin]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - id: paparazzi-export
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "paparazzi-export_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "paparazzi-export_checksums.txt"
+
+changelog:
+  disable: true
+
+release:
+  mode: keep-existing
+  prerelease: auto
+
+git:
+  ignore_tags:
+    - "*-alpha*"

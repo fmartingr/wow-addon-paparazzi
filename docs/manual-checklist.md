@@ -38,3 +38,13 @@ Write `pass` or `fail` and the date in each cell.
 | `firstVisit` | Enter a new zone (enable it first). Login: no image. | | | | | | | |
 | Settings panel | Open **Options → AddOns → Paparazzi** and `/paparazzi`. Switch a trigger off, then `/reload`. The value stays. | | | | | | | |
 | Addon compartment | Click the Paparazzi entry in the addon compartment (Retail, Forever). The panel opens. | | | | | | | |
+
+## Release
+
+Run this section before each release.
+
+1. Run every row above in each flavor that you can reach.
+2. Run `paparazzi-export` on the real SavedVariables. Each JSON matches schema 1, and its `file` names the image next to it.
+3. Run the exporter a second time. Each capture is skipped, and nothing changes.
+4. Open the addon zip. It holds only `Paparazzi/` with the TOC, `src/`, `LICENSE`, and `README.md`.
+5. After a beta tag, check the GitHub Release: the addon zip, six exporter archives, and the beta flag.
