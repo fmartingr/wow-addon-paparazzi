@@ -194,3 +194,11 @@ func TestRunVersion(t *testing.T) {
 		t.Fatalf("exit %d: %q", code, stdout)
 	}
 }
+
+func TestRunGlobCharactersInPath(t *testing.T) {
+	base := filepath.Join(t.TempDir(), "wow [EU]")
+	copyTree(t, "../../testdata/wow", base)
+	if code, _, stderr := exec("--wow-dir", base); code != 0 {
+		t.Fatalf("exit %d: %s", code, stderr)
+	}
+}

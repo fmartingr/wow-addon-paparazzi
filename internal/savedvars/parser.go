@@ -15,12 +15,14 @@ import (
 const (
 	MaxInputSize = 64 << 20
 	MaxDepth     = 64
+	MaxTables    = 1 << 20
 )
 
 type parser struct {
 	lex   *lexer
 	tok   token
 	depth int
+	count int
 }
 
 // Parse reads a SavedVariables file and returns its top-level assignments.
@@ -167,6 +169,10 @@ func (b *tableBuilder) result() any {
 
 func (p *parser) table() (any, error) {
 	p.depth++
+	p.count++
+	if p.count > MaxTables {
+		return nil, p.lex.errorf(p.tok.line, p.tok.col, "more than %d tables", MaxTables)
+	}
 	defer func() { p.depth-- }()
 	if p.depth > MaxDepth {
 		return nil, p.lex.errorf(p.tok.line, p.tok.col, "tables are nested deeper than %d levels", MaxDepth)

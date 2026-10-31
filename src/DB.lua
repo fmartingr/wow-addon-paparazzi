@@ -44,7 +44,18 @@ end
 
 function DB.Init(saved)
 	local db = type(saved) == "table" and saved or {}
+	if type(db.schema) ~= "number" then
+		db.schema = nil
+	end
+	for _, key in ipairs({ "settings", "captures", "visited" }) do
+		if type(db[key]) ~= "table" then
+			db[key] = nil
+		end
+	end
 	fill(db, DB.defaults)
+	if type(db.settings.triggers) ~= "table" then
+		db.settings.triggers = {}
+	end
 
 	local triggers = ns.Triggers and ns.Triggers.All() or {}
 	for _, def in ipairs(triggers) do
@@ -59,8 +70,8 @@ function DB.Init(saved)
 	end
 
 	local settings = db.settings
-	settings.debounceCap = clamp(settings.debounceCap, 2, 10, 5)
-	settings.retention = clamp(settings.retention, 100, 5000, 1000)
+	settings.debounceCap = math.floor(clamp(settings.debounceCap, 2, 10, 5) + 0.5)
+	settings.retention = math.floor(clamp(settings.retention, 100, 5000, 1000) / 100 + 0.5) * 100
 	for key, entry in pairs(settings.triggers) do
 		if type(entry) == "table" then
 			entry.delay = snapHalf(clamp(entry.delay, 0, 5, 1))

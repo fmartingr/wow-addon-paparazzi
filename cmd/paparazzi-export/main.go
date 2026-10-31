@@ -82,12 +82,13 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "warning: several screenshots match %s, skipped\n", c.File)
 	}
 
-	written, skipped := 0, 0
+	written, skipped, failed := 0, 0, false
 	for _, pair := range result.Pairs {
 		status, err := export.Write(dir, pair, *force, *dryRun)
 		if err != nil {
 			fmt.Fprintln(stderr, err)
-			return 1
+			failed = true
+			continue
 		}
 		if status == export.Written {
 			written++
@@ -97,20 +98,30 @@ func run(args []string, stdout, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, "written=%d skipped=%d unmatched=%d ambiguous=%d\n",
 		written, skipped, len(result.Unmatched), len(result.Ambiguous))
+	if failed {
+		return 1
+	}
 	return 0
 }
 
 func findDBFiles(wowDir, account string) ([]string, error) {
-	pattern := filepath.Join(wowDir, "WTF", "Account", "*", "SavedVariables", "Paparazzi.lua")
-	if account != "" {
-		pattern = filepath.Join(wowDir, "WTF", "Account", account, "SavedVariables", "Paparazzi.lua")
-	}
-	matches, err := filepath.Glob(pattern)
+	accountsDir := filepath.Join(wowDir, "WTF", "Account")
+	entries, err := os.ReadDir(accountsDir)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot read %s: %w", accountsDir, err)
+	}
+	var matches []string
+	for _, e := range entries {
+		if !e.IsDir() || (account != "" && e.Name() != account) {
+			continue
+		}
+		path := filepath.Join(accountsDir, e.Name(), "SavedVariables", "Paparazzi.lua")
+		if _, err := os.Stat(path); err == nil {
+			matches = append(matches, path)
+		}
 	}
 	if len(matches) == 0 {
-		return nil, fmt.Errorf("no Paparazzi.lua found (pattern %s); log out of the game or /reload first", pattern)
+		return nil, fmt.Errorf("no Paparazzi.lua found under %s; log out of the game or /reload first", accountsDir)
 	}
 	sort.Strings(matches)
 	return matches, nil

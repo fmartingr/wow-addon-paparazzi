@@ -140,6 +140,14 @@ func TestParseDepth(t *testing.T) {
 	}
 }
 
+func TestParseTableCountLimit(t *testing.T) {
+	src := "A = {" + strings.Repeat("{},", MaxTables) + "}"
+	_, err := Parse(strings.NewReader(src))
+	if err == nil || !strings.Contains(err.Error(), "tables") {
+		t.Fatalf("got %v", err)
+	}
+}
+
 type repeatReader struct{ left int64 }
 
 func (r *repeatReader) Read(p []byte) (int, error) {
