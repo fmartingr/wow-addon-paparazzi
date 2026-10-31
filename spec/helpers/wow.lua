@@ -30,6 +30,11 @@ local INSTALLED = {
 
 local real_time, real_date = os.time, os.date
 
+local baseline = {}
+for k in pairs(_G) do
+	baseline[k] = true
+end
+
 local function install_frames()
 	wow.frames = {}
 	_G.CreateFrame = function()
@@ -84,6 +89,11 @@ function wow.reset(opts)
 	opts = opts or {}
 	for _, name in ipairs(INSTALLED) do
 		_G[name] = nil
+	end
+	for k in pairs(_G) do
+		if not baseline[k] then
+			_G[k] = nil
+		end
 	end
 
 	wow.clock = 0
@@ -239,6 +249,39 @@ function wow.load_addon(files)
 		assert(loadfile(path))("Paparazzi", ns)
 	end
 	return ns
+end
+
+-- Boots the real addon through the TOC and fires ADDON_LOADED.
+function wow.boot(opts)
+	opts = opts or {}
+	wow.reset(opts)
+	if opts.setup then
+		opts.setup()
+	end
+	_G.PaparazziDB = opts.saved
+	local ns = wow.load_addon(wow.toc_files())
+	wow.fire("ADDON_LOADED", "Paparazzi")
+	return ns
+end
+
+-- Fires an event, runs the clock until a screenshot is requested, then confirms it.
+-- Returns the new capture record, or nil when no screenshot happened.
+function wow.take(event, ...)
+	local before = wow.screenshots
+	local count = #PaparazziDB.captures
+	wow.fire(event, ...)
+	for _ = 1, 20 do
+		if wow.screenshots > before then
+			break
+		end
+		wow.advance(0.5)
+	end
+	if wow.screenshots == before then
+		return nil
+	end
+	wow.fire("SCREENSHOT_SUCCEEDED")
+	wow.advance(1)
+	return PaparazziDB.captures[count + 1]
 end
 
 wow.reset()

@@ -525,7 +525,7 @@ Commit each task on its own with Conventional Commits (D20). Do not push.
   - [ ] Docs and config that describe the changed behavior are updated.
   - [ ] Task heading checkbox ticked; changes committed.
 
-### [ ] 4. Triggers: progress and collections
+### [x] 4. Triggers: progress and collections
 
 - **Outcome:** the triggers below exist with the catalog defaults and flavor gates. Each one records its data fields.
 - **Depends on:** Task 3 (registry, dispatch, capture pipeline).
@@ -578,7 +578,7 @@ Commit each task on its own with Conventional Commits (D20). Do not push.
   - [ ] Docs and config that describe the changed behavior are updated.
   - [ ] Task heading checkbox ticked; changes committed.
 
-### [ ] 5. Triggers: combat, PvP, loot, and world
+### [x] 5. Triggers: combat, PvP, loot, and world
 
 - **Outcome:** the remaining triggers of the catalog exist with their defaults, flavor gates, and data fields.
 - **Depends on:** Task 3 (registry, dispatch, `PaparazziDB.visited`).

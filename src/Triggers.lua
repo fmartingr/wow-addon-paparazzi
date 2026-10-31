@@ -92,6 +92,17 @@ function Triggers.Events()
 	return events
 end
 
+-- Name lookups must never cancel a shot, so a missing or failing API gives nil.
+function Triggers.Lookup(fn, ...)
+	if type(fn) ~= "function" then
+		return nil
+	end
+	local results = { pcall(fn, ...) }
+	if results[1] then
+		return unpack(results, 2)
+	end
+end
+
 function Triggers.Bind(opts)
 	bound = opts
 end

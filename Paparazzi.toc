@@ -13,4 +13,9 @@ src\Debouncer.lua
 src\Capture.lua
 src\Triggers.lua
 src\triggers\Progress.lua
+src\triggers\Collections.lua
+src\triggers\Combat.lua
+src\triggers\PvP.lua
+src\triggers\Loot.lua
+src\triggers\World.lua
 src\Core.lua
