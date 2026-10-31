@@ -1,4 +1,9 @@
+
 # Paparazzi
+
+<p align="center">
+  <img src="assets/paparazzi-icon.png" alt="Paparazzi icon" width="128">
+</p>
 
 Paparazzi takes a screenshot when a configured game event occurs in World of Warcraft. It records why each screenshot exists.
 
