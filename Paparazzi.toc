@@ -4,7 +4,7 @@
 ## Author: Felipe M.
 ## Version: @project-version@
 ## SavedVariables: PaparazziDB
-## IconTexture: Interface\Icons\INV_Misc_Spyglass_03
+## IconTexture: Interface\AddOns\Paparazzi\assets\paparazzi-icon
 ## X-License: GPL-3.0-or-later
 ## AddonCompartmentFunc: Paparazzi_OnAddonCompartmentClick
 
