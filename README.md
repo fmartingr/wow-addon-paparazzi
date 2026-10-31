@@ -18,6 +18,7 @@ Copy this folder to `World of Warcraft/_<flavor>_/Interface/AddOns/Paparazzi`.
 3. Run `make check-tools`.
 4. Run `make lint test coverage`.
 5. Run `make link WOW_DIR=<flavor dir>` to link the addon into the game.
+6. Run `make install WOW_DIR=<flavor dir>` to copy the addon files into the game instead.
 
 ## Usage
 

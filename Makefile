@@ -15,7 +15,7 @@ export PATH := $(HOME)/.luarocks/bin:$(PATH)
 export LUA_PATH := $(LR_PATH);$(LUA_PATH);;
 export LUA_CPATH := $(LR_CPATH);$(LUA_CPATH);;
 
-.PHONY: help check-tools deps lint lint-lua lint-go fmt-check fmt test test-lua test-go test-release coverage coverage-lua coverage-go build export link clean
+.PHONY: help check-tools deps lint lint-lua lint-go fmt-check fmt test test-lua test-go test-release coverage coverage-lua coverage-go build export link install clean
 
 help: ## List the targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "%-16s %s\n", $$1, $$2}'
@@ -117,6 +117,13 @@ release-major: release-check ## Tag and push the next major version
 link: ## Link the addon into WOW_DIR (a flavor folder)
 	@if [ -z "$${WOW_DIR:-}" ]; then echo "WOW_DIR is required, for example .../World of Warcraft/_retail_" >&2; exit 2; fi
 	ln -sfn "$(CURDIR)" "$(WOW_DIR)/Interface/AddOns/Paparazzi"
+
+install: ## Copy the addon files into WOW_DIR (a flavor folder)
+	@if [ -z "$${WOW_DIR:-}" ]; then echo "WOW_DIR is required, for example .../World of Warcraft/_retail_" >&2; exit 2; fi
+	@if [ ! -d "$(WOW_DIR)/Interface/AddOns" ]; then echo "install: $(WOW_DIR)/Interface/AddOns does not exist" >&2; exit 1; fi
+	rm -rf "$(WOW_DIR)/Interface/AddOns/Paparazzi"
+	mkdir -p "$(WOW_DIR)/Interface/AddOns/Paparazzi"
+	cp -R Paparazzi.toc src assets "$(WOW_DIR)/Interface/AddOns/Paparazzi/"
 
 clean: ## Remove build output
 	rm -rf build .release luacov.*.out coverage.out
