@@ -71,6 +71,13 @@ Game versions, by Interface number:
 - **era:** 1.15.x.
 - **All:** all six.
 
+## Works with Memories
+
+- Paparazzi sends a note to the Memories addon after each automatic screenshot. The note lists the trigger labels, for example `Level up, Boss kill`.
+- Paparazzi sends the same file name that the capture record stores.
+- Memories is optional. Without it, Paparazzi does nothing extra.
+- To stop the notes, disable the Memories kind `sn` in the Memories settings.
+
 ## Exporter
 
 The game writes SavedVariables on logout or `/reload` only. The addon cannot write files itself. `paparazzi-export` reads the SavedVariables and writes a `<screenshot>.json` file next to each matched image.

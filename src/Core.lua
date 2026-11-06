@@ -6,6 +6,22 @@ local function settings()
 	return PaparazziDB.settings
 end
 
+local function labelOf(key)
+	local def = ns.Triggers.Get(key)
+	return def and def.label
+end
+
+function ns.SendNote(record)
+	local api = rawget(_G, "Memories")
+	if type(api) ~= "table" or type(api.RecordScreenshot) ~= "function" then
+		return
+	end
+	local note = ns.Capture.Note(record.events, labelOf)
+	if note then
+		pcall(api.RecordScreenshot, ns.name, note, record.file)
+	end
+end
+
 local function onAddonLoaded()
 	PaparazziDB = ns.DB.Init(PaparazziDB)
 
@@ -28,6 +44,7 @@ local function onAddonLoaded()
 		newTimer = C_Timer.NewTimer,
 		screenshot = Screenshot,
 		context = ns.Capture.BuildContext,
+		onCaptured = ns.SendNote,
 	})
 	ns.Triggers.Bind({
 		settings = settings,

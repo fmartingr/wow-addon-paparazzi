@@ -61,6 +61,7 @@ read_globals = {
 	"GetSpellInfo",
 	"IsActiveBattlefieldArena",
 	"MapUtil",
+	"Memories",
 }
 
 files["spec/"] = { std = "+busted", globals = { "_G" } }
