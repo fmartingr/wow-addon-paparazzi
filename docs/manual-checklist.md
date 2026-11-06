@@ -29,6 +29,7 @@ Write `pass` or `fail` and the date in each cell.
 | `challengeModeRecord` | Set a Mythic+ record (enable it first). | | | | | | | |
 | `delve` | Finish a delve (enable it first). Check that `SCENARIO_COMPLETED` fires. | | | | | | | |
 | `death` | Die (enable it first). | | | | | | | |
+| `closeCall` | Drop under 20% health, then heal above it (enable it first). | | | | | | | |
 | `pvpMatch` | Win a battleground or arena (enable it first). Lose one: no image. | | | | | | | |
 | `duel` | Finish a duel (enable it first). | | | | | | | |
 | `epicLoot` | Loot an epic item (enable it first). | | | | | | | |

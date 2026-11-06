@@ -42,6 +42,11 @@ local function install_frames()
 		function frame:RegisterEvent(e)
 			self.events[e] = true
 		end
+		function frame:RegisterUnitEvent(e, unit)
+			self.events[e] = true
+			self.units = self.units or {}
+			self.units[e] = unit
+		end
 		function frame:UnregisterEvent(e)
 			self.events[e] = nil
 		end

@@ -149,3 +149,43 @@ Triggers.Register({
 		return {}
 	end,
 })
+
+-- Matches the threshold of the red low health warning in the default UI.
+local LOW_HEALTH = 20
+
+Triggers.Register({
+	key = "closeCall",
+	label = "Close call",
+	category = "combat",
+	events = { "UNIT_HEALTH", "PLAYER_DEAD" },
+	unit = "player",
+	flavors = "all",
+	default = { enabled = false, delay = 1.0 },
+	handle = function(state, event, unit)
+		if event == "PLAYER_DEAD" then
+			state.low = nil
+			return nil
+		end
+		if unit ~= "player" then
+			return nil
+		end
+		if UnitIsDeadOrGhost and UnitIsDeadOrGhost("player") then
+			state.low = nil
+			return nil
+		end
+		local health, max = ns.Safe(UnitHealth("player")), ns.Safe(UnitHealthMax("player"))
+		if type(health) ~= "number" or type(max) ~= "number" or max <= 0 then
+			return nil
+		end
+		local percent = health * 100 / max
+		if percent < LOW_HEALTH then
+			state.low = math.min(state.low or percent, percent)
+			return nil
+		end
+		local lowest = state.low
+		state.low = nil
+		if lowest then
+			return { lowestPercent = math.floor(lowest), healthPercent = math.floor(percent) }
+		end
+	end,
+})

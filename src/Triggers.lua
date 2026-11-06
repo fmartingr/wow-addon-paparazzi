@@ -130,6 +130,20 @@ local function listens(def, event)
 	return false
 end
 
+-- A unit event is cheaper to receive for one unit than for every unit in a raid.
+function Triggers.EventUnit(event)
+	local unit
+	for _, def in ipairs(available()) do
+		if listens(def, event) then
+			if def.unit == nil or (unit ~= nil and unit ~= def.unit) then
+				return nil
+			end
+			unit = def.unit
+		end
+	end
+	return unit
+end
+
 function Triggers.Dispatch(event, ...)
 	local settings = bound.settings().triggers
 	for _, def in ipairs(available()) do

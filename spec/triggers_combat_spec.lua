@@ -170,3 +170,99 @@ describe("combat triggers", function()
 		assert.is_true(wow.clock - before >= 0.5)
 	end)
 end)
+
+describe("close call trigger", function()
+	local health, max, dead
+
+	local function setup()
+		health, max, dead = 100, 100, false
+		_G.UnitHealth = function()
+			return health
+		end
+		_G.UnitHealthMax = function()
+			return max
+		end
+		_G.UnitIsDeadOrGhost = function()
+			return dead
+		end
+	end
+
+	local function boot()
+		wow.boot({ setup = setup })
+		enable("closeCall")
+	end
+
+	it("registers for the player unit only", function()
+		boot()
+		local unit
+		for _, frame in ipairs(wow.frames) do
+			unit = unit or (frame.units and frame.units.UNIT_HEALTH)
+		end
+		assert.equal("player", unit)
+	end)
+
+	it("shoots when health leaves the low range", function()
+		boot()
+		health = 15
+		assert.is_nil(wow.take("UNIT_HEALTH", "player"))
+		health = 8
+		assert.is_nil(wow.take("UNIT_HEALTH", "player"))
+		health = 40
+		local record = wow.take("UNIT_HEALTH", "player")
+		assert.same({ lowestPercent = 8, healthPercent = 40 }, record.events[1].data)
+	end)
+
+	it("makes no shot without a low phase", function()
+		boot()
+		health = 50
+		assert.is_nil(wow.take("UNIT_HEALTH", "player"))
+	end)
+
+	it("ignores other units", function()
+		boot()
+		health = 10
+		wow.take("UNIT_HEALTH", "party1")
+		health = 90
+		assert.is_nil(wow.take("UNIT_HEALTH", "party1"))
+	end)
+
+	it("makes no shot when the player dies and returns", function()
+		boot()
+		health = 10
+		wow.take("UNIT_HEALTH", "player")
+		dead, health = true, 0
+		wow.take("UNIT_HEALTH", "player")
+		dead, health = false, 60
+		assert.is_nil(wow.take("UNIT_HEALTH", "player"))
+	end)
+
+	it("reports whole percents without float error", function()
+		boot()
+		health = 14
+		wow.take("UNIT_HEALTH", "player")
+		health = 29
+		local record = wow.take("UNIT_HEALTH", "player")
+		assert.same({ lowestPercent = 14, healthPercent = 29 }, record.events[1].data)
+	end)
+
+	it("clears the low state on death even without a dead flag", function()
+		boot()
+		health = 10
+		wow.take("UNIT_HEALTH", "player")
+		wow.take("PLAYER_DEAD")
+		health = 60
+		assert.is_nil(wow.take("UNIT_HEALTH", "player"))
+	end)
+
+	it("ignores secret values", function()
+		boot()
+		health = wow.secret(10)
+		assert.is_nil(wow.take("UNIT_HEALTH", "player"))
+	end)
+
+	it("ignores a zero maximum", function()
+		boot()
+		max = 0
+		assert.is_nil(wow.take("UNIT_HEALTH", "player"))
+	end)
+end)

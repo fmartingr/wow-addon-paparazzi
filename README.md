@@ -47,6 +47,7 @@ Each trigger has an on/off switch and a delay in the settings panel. The delay i
 | Mythic+ new record | Combat | Off | 1.0 | retail, mists |
 | Delve completed | Combat | Off | 1.0 | retail |
 | Death | Combat | Off | 0.5 | All |
+| Close call | Combat | Off | 1.0 | All |
 | New mount | Collections | On | 1.0 | retail, mists, titan |
 | New pet | Collections | On | 1.0 | retail, mists, titan |
 | New toy | Collections | On | 1.0 | retail, mists, titan |

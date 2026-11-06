@@ -38,7 +38,12 @@ local function onAddonLoaded()
 	ns.Triggers.Refresh()
 
 	for _, event in ipairs(ns.Triggers.Events()) do
-		frame:RegisterEvent(event)
+		local unit = ns.Triggers.EventUnit(event)
+		if unit then
+			frame:RegisterUnitEvent(event, unit)
+		else
+			frame:RegisterEvent(event)
+		end
 	end
 	if ns.Settings and ns.Settings.Init then
 		ns.Settings.Init(PaparazziDB)

@@ -5,7 +5,7 @@
 ## What it captures
 
 - **Progress:** level up, achievement, guild achievement, achievement criteria, reputation rank, renown level, new recipe, Traveler's Log activity.
-- **Combat:** boss kill, boss wipe, world boss kill, Mythic+ completed, Mythic+ new record, Delve completed, death.
+- **Combat:** boss kill, boss wipe, world boss kill, Mythic+ completed, Mythic+ new record, Delve completed, death, close call (your health drops under 20% and recovers).
 - **Collections:** new mount, new pet, new toy, new housing item, house level.
 - **PvP:** PvP match won, duel finished.
 - **Loot and trade:** epic loot, legendary loot, trade.
