@@ -81,6 +81,13 @@ describe("Memories notes", function()
 		assert.equal(PaparazziDB.captures[1].file, calls[1][3])
 	end)
 
+	it("makes no call when the setting is off", function()
+		stub()
+		PaparazziDB.settings.memories = false
+		assert.is_table(wow.take("PLAYER_LEVEL_UP", 80))
+		assert.equal(0, #calls)
+	end)
+
 	it("stores the capture when Memories is missing", function()
 		_G.Memories = nil
 		assert.is_table(wow.take("PLAYER_LEVEL_UP", 80))

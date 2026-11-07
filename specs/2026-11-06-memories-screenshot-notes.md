@@ -27,7 +27,6 @@ Acceptance criteria:
   - Call the API through `pcall`, so that an error in Memories cannot break Paparazzi.
 - **Must Not:**
   - Change the capture record schema or the exporter.
-  - Add a setting (the call is cheap and happens only when Memories exists).
   - Read or write Memories' saved data.
 - **Out of Scope:**
   - Any change in Memories. Memories implements `RecordScreenshot` in its own spec (Task 8 there).
@@ -38,7 +37,7 @@ Acceptance criteria:
 - **D1 — Call after the shot.** The user chose that the screenshot note goes to Memories after `SCREENSHOT_SUCCEEDED`, with the predicted file name. The Memories converter joins the note with Memories' own `ss` line by file name, else by time (±2 s).
 - **D2 — Source name** is the literal `"Paparazzi"` (`ns.name`), so that the Memories converter shows the source.
 - **D3 — Note text** comes from the trigger labels, because the labels are what the player sees in the Settings panel. Memories cuts the note at 200 bytes on a UTF-8 character limit, so Paparazzi does not cut it.
-- **D4 — No setting.** A player who does not want the notes can disable the Memories kind `sn` in Memories' settings.
+- **D4 — One setting.** The checkbox `memories` (default on) in a "Memories" settings tab switches the notes on or off. The checkbox is locked when Memories is not installed.
 
 ## Risks
 

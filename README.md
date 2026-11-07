@@ -75,8 +75,8 @@ Game versions, by Interface number:
 
 - Paparazzi sends a note to the Memories addon after each automatic screenshot. The note lists the trigger labels, for example `Level up, Boss kill`.
 - Paparazzi sends the same file name that the capture record stores.
-- Memories is optional. Without it, Paparazzi does nothing extra.
-- To stop the notes, disable the Memories kind `sn` in the Memories settings.
+- Memories is optional. The setting is on by default. Without Memories, Paparazzi does nothing extra.
+- The checkbox **Send notes to Memories** in the **Memories** settings tab switches the notes on or off. It is locked when Memories is not installed.
 
 ## Exporter
 

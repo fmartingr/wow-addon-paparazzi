@@ -5,7 +5,7 @@ ns.DB = DB
 
 DB.defaults = {
 	schema = 1,
-	settings = { enabled = true, debounceCap = 5, retention = 1000, triggers = {} },
+	settings = { enabled = true, memories = true, debounceCap = 5, retention = 1000, triggers = {} },
 	captures = {},
 	visited = {},
 }
@@ -70,6 +70,9 @@ function DB.Init(saved)
 	end
 
 	local settings = db.settings
+	if type(settings.memories) ~= "boolean" then
+		settings.memories = true
+	end
 	settings.debounceCap = math.floor(clamp(settings.debounceCap, 2, 10, 5) + 0.5)
 	settings.retention = math.floor(clamp(settings.retention, 100, 5000, 1000) / 100 + 0.5) * 100
 	for key, entry in pairs(settings.triggers) do

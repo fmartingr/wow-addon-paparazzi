@@ -225,7 +225,13 @@ function wow.install_settings()
 			return setting
 		end,
 		CreateCheckbox = function(category, setting, tooltip)
-			category.items[#category.items + 1] = { type = "checkbox", setting = setting, tooltip = tooltip }
+			local initializer = {}
+			function initializer:AddModifyPredicate(fn)
+				self.predicate = fn
+			end
+			category.items[#category.items + 1] =
+				{ type = "checkbox", setting = setting, tooltip = tooltip, initializer = initializer }
+			return initializer
 		end,
 		CreateSliderOptions = function(min, max, step)
 			local options = { min = min, max = max, step = step }
@@ -237,6 +243,12 @@ function wow.install_settings()
 		CreateSlider = function(category, setting, options, tooltip)
 			category.items[#category.items + 1] =
 				{ type = "slider", setting = setting, options = options, tooltip = tooltip }
+		end,
+		RegisterVerticalLayoutSubcategory = function(parent, name)
+			local sub = { name = name, items = {}, parent = parent }
+			parent.subcategories = parent.subcategories or {}
+			parent.subcategories[#parent.subcategories + 1] = sub
+			return sub
 		end,
 		RegisterAddOnCategory = function(category)
 			category.registered = true

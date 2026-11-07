@@ -11,9 +11,16 @@ local function labelOf(key)
 	return def and def.label
 end
 
-function ns.SendNote(record)
+function ns.MemoriesApi()
 	local api = rawget(_G, "Memories")
-	if type(api) ~= "table" or type(api.RecordScreenshot) ~= "function" then
+	if type(api) == "table" and type(api.RecordScreenshot) == "function" then
+		return api
+	end
+end
+
+function ns.SendNote(record)
+	local api = ns.MemoriesApi()
+	if not api or not settings().memories then
 		return
 	end
 	local note = ns.Capture.Note(record.events, labelOf)
