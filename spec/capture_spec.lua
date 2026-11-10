@@ -8,7 +8,7 @@ describe("Capture", function()
 		ns = wow.load_addon({ "src/Init.lua", "src/DB.lua", "src/Capture.lua" })
 	end)
 
-	local function new(db)
+	local function new(db, onCaptured)
 		return ns.Capture.New({
 			db = function()
 				return db
@@ -18,6 +18,7 @@ describe("Capture", function()
 			newTimer = C_Timer.NewTimer,
 			screenshot = Screenshot,
 			context = ns.Capture.BuildContext,
+			onCaptured = onCaptured,
 		})
 	end
 
@@ -127,6 +128,107 @@ describe("Capture", function()
 			capture:Take(batch("a"))
 			capture:OnSucceeded()
 			assert.is_nil(db.captures[1].character.name)
+		end)
+	end)
+
+	describe("onCaptured", function()
+		it("is called once with the stored record after it is stored", function()
+			local db = newDb()
+			local calls, storedAtCall = {}, nil
+			local capture = new(db, function(record)
+				calls[#calls + 1] = record
+				storedAtCall = db.captures[1]
+			end)
+			capture:Take(batch("a"))
+			capture:OnSucceeded()
+			assert.equal(1, #calls)
+			assert.equal(db.captures[1], calls[1])
+			assert.equal(storedAtCall, calls[1])
+		end)
+
+		it("is not called on failure", function()
+			local called = false
+			local capture = new(newDb(), function()
+				called = true
+			end)
+			capture:Take(batch("a"))
+			capture:OnFailed()
+			assert.is_false(called)
+		end)
+
+		it("is not called for a manual screenshot", function()
+			local called = false
+			new(newDb(), function()
+				called = true
+			end):OnSucceeded()
+			assert.is_false(called)
+		end)
+
+		it("is not called after the await timeout", function()
+			local called = false
+			local capture = new(newDb(), function()
+				called = true
+			end)
+			capture:Take(batch("a"))
+			wow.advance(3)
+			capture:OnSucceeded()
+			assert.is_false(called)
+		end)
+
+		it("keeps the capture and keeps working when it raises", function()
+			local db = newDb()
+			local capture = new(db, function()
+				error("boom")
+			end)
+			capture:Take(batch("a"))
+			capture:OnSucceeded()
+			assert.equal(1, #db.captures)
+			wow.advance(2)
+			capture:Take(batch("b"))
+			capture:OnSucceeded()
+			assert.equal(2, #db.captures)
+			assert.same({}, wow.chat)
+		end)
+	end)
+
+	describe("Note", function()
+		local function labelOf(key)
+			return ({ levelUp = "Level up", bossKill = "Boss kill" })[key]
+		end
+
+		local function events(...)
+			local list = {}
+			for _, key in ipairs({ ... }) do
+				list[#list + 1] = { trigger = key }
+			end
+			return list
+		end
+
+		it("joins labels in event order", function()
+			assert.equal("Level up, Boss kill", ns.Capture.Note(events("levelUp", "bossKill"), labelOf))
+			assert.equal("Boss kill, Level up", ns.Capture.Note(events("bossKill", "levelUp"), labelOf))
+		end)
+
+		it("drops duplicate labels", function()
+			assert.equal("Level up, Boss kill", ns.Capture.Note(events("levelUp", "bossKill", "levelUp"), labelOf))
+		end)
+
+		it("uses the key when no label exists", function()
+			assert.equal("Level up, mystery", ns.Capture.Note(events("levelUp", "mystery"), labelOf))
+		end)
+
+		it("passes non-ASCII labels as they are", function()
+			assert.equal(
+				"Nivel é",
+				ns.Capture.Note(events("x"), function()
+					return "Nivel é"
+				end)
+			)
+		end)
+
+		it("returns nil for an empty list", function()
+			assert.is_nil(ns.Capture.Note({}, labelOf))
+			assert.is_nil(ns.Capture.Note(nil, labelOf))
 		end)
 	end)
 

@@ -27,6 +27,21 @@ function Capture.IsoTime(t, offset)
 		.. string.format("%s%02d:%02d", sign, math.floor(abs / 3600), math.floor(abs % 3600 / 60))
 end
 
+function Capture.Note(events, labelOf)
+	local labels, seen = {}, {}
+	for _, event in ipairs(events or {}) do
+		local label = labelOf(event.trigger) or event.trigger
+		if label ~= nil and not seen[label] then
+			seen[label] = true
+			labels[#labels + 1] = label
+		end
+	end
+	if #labels == 0 then
+		return nil
+	end
+	return table.concat(labels, ", ")
+end
+
 function Capture.BuildContext()
 	local safe = ns.Safe
 	local context = {
@@ -105,7 +120,7 @@ function Capture.New(opts)
 		local t = time()
 		local offset = Capture.UtcOffset(t)
 		local context = taken.context
-		ns.DB.AppendCapture(opts.db(), {
+		local record = {
 			schema = 1,
 			file = Capture.FileName(t, GetCVar("screenshotFormat")),
 			time = Capture.IsoTime(t, offset),
@@ -116,7 +131,11 @@ function Capture.New(opts)
 			character = context.character,
 			location = context.location,
 			events = taken.batch.events,
-		})
+		}
+		ns.DB.AppendCapture(opts.db(), record)
+		if opts.onCaptured then
+			pcall(opts.onCaptured, record)
+		end
 	end
 
 	function instance:OnFailed()

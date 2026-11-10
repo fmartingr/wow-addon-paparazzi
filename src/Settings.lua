@@ -12,6 +12,15 @@ local CATEGORY_LABELS = {
 	world = "World",
 }
 
+local MEMORIES_TEXT = {
+	"Memories records the journey of your character.",
+	"Paparazzi sends a note to Memories after each screenshot.",
+	"The note lists the triggers that took the screenshot.",
+	"The checkbox is on by default when Memories is installed.",
+	"The checkbox is locked when Memories is not installed.",
+}
+local MEMORIES_TOOLTIP = "Send the reason of each screenshot to the Memories addon."
+
 local category
 
 local function supported()
@@ -94,7 +103,37 @@ function SettingsUI.Init(db)
 		end
 	end
 
+	SettingsUI.InitMemories(db)
+
 	Settings.RegisterAddOnCategory(category)
+end
+
+function SettingsUI.InitMemories(db)
+	local target = category
+	if Settings.RegisterVerticalLayoutSubcategory then
+		target = Settings.RegisterVerticalLayoutSubcategory(category, "Memories")
+	end
+	local layout = SettingsPanel and SettingsPanel.GetLayout and SettingsPanel:GetLayout(target)
+	if layout and CreateSettingsListSectionHeaderInitializer then
+		for _, line in ipairs(MEMORIES_TEXT) do
+			layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(line))
+		end
+	end
+	local setting = Settings.RegisterAddOnSetting(
+		target,
+		"Paparazzi_memories",
+		"memories",
+		db.settings,
+		Settings.VarType.Boolean,
+		"Send notes to Memories",
+		true
+	)
+	local initializer = Settings.CreateCheckbox(target, setting, MEMORIES_TOOLTIP)
+	if initializer and initializer.AddModifyPredicate then
+		initializer:AddModifyPredicate(function()
+			return ns.MemoriesApi() ~= nil
+		end)
+	end
 end
 
 function SettingsUI.Open()

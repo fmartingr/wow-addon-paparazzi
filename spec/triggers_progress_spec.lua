@@ -263,4 +263,154 @@ describe("progress triggers", function()
 			end
 		end)
 	end)
+
+	describe("professionMilestone", function()
+		local lines
+
+		local function setup()
+			_G.TRADE_SKILLS = "Professions"
+			_G.SECONDARY_SKILLS = "Secondary Skills"
+			_G.GetNumSkillLines = function()
+				return #lines
+			end
+			_G.GetSkillLineInfo = function(i)
+				local line = lines[i]
+				return line[1], line[2], true, line[3] or 0
+			end
+		end
+
+		before_each(function()
+			lines = {
+				{ "Class Skills", true },
+				{ "Defense", false, 74 },
+				{ "Professions", true },
+				{ "Mining", false, 74 },
+				{ "Herbalism", false, 10 },
+				{ "Secondary Skills", true },
+				{ "Cooking", false, 149 },
+				{ "Weapon Skills", true },
+				{ "Swords", false, 74 },
+			}
+		end)
+
+		local function boot(build)
+			wow.boot({ build = build or ERA, setup = setup })
+			wow.fire("PLAYER_ENTERING_WORLD", false, false)
+		end
+
+		it("shoots when a profession reaches a multiple of 75", function()
+			boot()
+			lines[4][3] = 75
+			local record = wow.take("SKILL_LINES_CHANGED")
+			assert.same({ skillName = "Mining", rank = 75, milestone = 75 }, record.events[1].data)
+		end)
+
+		it("shoots for a secondary profession", function()
+			boot()
+			lines[7][3] = 150
+			local record = wow.take("SKILL_LINES_CHANGED")
+			assert.same({ skillName = "Cooking", rank = 150, milestone = 150 }, record.events[1].data)
+		end)
+
+		it("shoots when one change passes a multiple of 75", function()
+			boot()
+			lines[4][3] = 80
+			assert.equal(75, wow.take("SKILL_LINES_CHANGED").events[1].data.milestone)
+		end)
+
+		it("does not shoot between multiples of 75", function()
+			boot()
+			lines[5][3] = 11
+			assert.is_nil(wow.take("SKILL_LINES_CHANGED"))
+		end)
+
+		it("shoots once for each multiple", function()
+			boot()
+			lines[4][3] = 75
+			assert.is_not_nil(wow.take("SKILL_LINES_CHANGED"))
+			assert.is_nil(wow.take("SKILL_LINES_CHANGED"))
+			lines[4][3] = 150
+			assert.equal(150, wow.take("SKILL_LINES_CHANGED").events[1].data.milestone)
+		end)
+
+		it("does not shoot when the rank falls", function()
+			boot()
+			lines[4][3] = 60
+			assert.is_nil(wow.take("SKILL_LINES_CHANGED"))
+		end)
+
+		it("ignores skills outside the profession headers", function()
+			boot()
+			lines[2][3] = 75
+			lines[9][3] = 75
+			assert.is_nil(wow.take("SKILL_LINES_CHANGED"))
+		end)
+
+		it("does not shoot for a profession missing from the snapshot", function()
+			boot()
+			lines[#lines + 1] = { "Professions", true }
+			lines[#lines + 1] = { "Fishing", false, 75 }
+			assert.is_nil(wow.take("SKILL_LINES_CHANGED"))
+		end)
+
+		it("takes its first snapshot on the first skill change when the login list was empty", function()
+			local saved = lines
+			lines = {}
+			boot()
+			lines = saved
+			assert.is_nil(wow.take("SKILL_LINES_CHANGED"))
+			lines[4][3] = 75
+			assert.is_not_nil(wow.take("SKILL_LINES_CHANGED"))
+		end)
+
+		it("shoots for a milestone passed while the header was collapsed", function()
+			boot()
+			local saved = { lines[3], lines[4], lines[5] }
+			table.remove(lines, 3)
+			table.remove(lines, 3)
+			table.remove(lines, 3)
+			assert.is_nil(wow.take("SKILL_LINES_CHANGED"))
+			saved[2][3] = 75
+			table.insert(lines, 3, saved[3])
+			table.insert(lines, 3, saved[2])
+			table.insert(lines, 3, saved[1])
+			assert.same(
+				{ skillName = "Mining", rank = 75, milestone = 75 },
+				wow.take("SKILL_LINES_CHANGED").events[1].data
+			)
+		end)
+
+		it("keeps the old rank on PLAYER_ENTERING_WORLD so a skill-up near a loading screen still shoots", function()
+			boot()
+			lines[4][3] = 75
+			assert.is_nil(wow.take("PLAYER_ENTERING_WORLD", false, false))
+			assert.equal(75, wow.take("SKILL_LINES_CHANGED").events[1].data.milestone)
+		end)
+
+		it("adds a profession that is new on PLAYER_ENTERING_WORLD without a shot", function()
+			boot()
+			lines[#lines + 1] = { "Professions", true }
+			lines[#lines + 1] = { "Fishing", false, 74 }
+			assert.is_nil(wow.take("PLAYER_ENTERING_WORLD", false, false))
+			lines[#lines][3] = 75
+			assert.equal("Fishing", wow.take("SKILL_LINES_CHANGED").events[1].data.skillName)
+		end)
+
+		it("makes no shot on PLAYER_ENTERING_WORLD", function()
+			boot()
+			lines[4][3] = 75
+			assert.is_nil(wow.take("PLAYER_ENTERING_WORLD", false, false))
+		end)
+
+		it("is not available on Retail or without the skill list API", function()
+			local ns = wow.boot({ build = { "12.1.5", "1", "d", 120105 }, setup = setup })
+			for _, def in ipairs(ns.Triggers.Available("retail")) do
+				assert.not_equal("professionMilestone", def.key)
+			end
+			ns = wow.boot({ build = ERA })
+			for _, def in ipairs(ns.Triggers.Available("era")) do
+				assert.not_equal("professionMilestone", def.key)
+			end
+		end)
+	end)
 end)

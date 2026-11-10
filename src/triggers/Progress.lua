@@ -198,3 +198,63 @@ Triggers.Register({
 		return { perksActivityID = perksActivityID, activityName = info and info.activityName }
 	end,
 })
+
+local PROFESSION_STEP = 75
+
+local function professionRanks()
+	local ranks = {}
+	local inProfessions = false
+	for i = 1, GetNumSkillLines() do
+		local name, header, _, rank = GetSkillLineInfo(i)
+		if header then
+			inProfessions = name == TRADE_SKILLS or name == SECONDARY_SKILLS
+		elseif inProfessions and name and type(rank) == "number" then
+			ranks[name] = rank
+		end
+	end
+	return ranks
+end
+
+Triggers.Register({
+	key = "professionMilestone",
+	label = "Profession milestone",
+	category = "progress",
+	events = { "PLAYER_ENTERING_WORLD", "SKILL_LINES_CHANGED" },
+	flavors = { "era", "tbc", "titan", "forever" },
+	requires = function()
+		return type(GetNumSkillLines) == "function" and type(GetSkillLineInfo) == "function"
+	end,
+	default = { enabled = true, delay = 1.0 },
+	handle = function(state, event)
+		local snapshot = state.snapshot or {}
+		state.snapshot = snapshot
+		local ranks = professionRanks()
+		if event == "PLAYER_ENTERING_WORLD" then
+			for name, rank in pairs(ranks) do
+				if snapshot[name] == nil then
+					snapshot[name] = rank
+				end
+			end
+			return nil
+		end
+
+		local names = {}
+		for name in pairs(ranks) do
+			names[#names + 1] = name
+		end
+		table.sort(names)
+		local result
+		for _, name in ipairs(names) do
+			local before, after = snapshot[name], ranks[name]
+			snapshot[name] = after
+			if not result and before and math.floor(after / PROFESSION_STEP) > math.floor(before / PROFESSION_STEP) then
+				result = {
+					skillName = name,
+					rank = after,
+					milestone = math.floor(after / PROFESSION_STEP) * PROFESSION_STEP,
+				}
+			end
+		end
+		return result
+	end,
+})

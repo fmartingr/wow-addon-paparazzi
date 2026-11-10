@@ -94,6 +94,64 @@ describe("Settings", function()
 		end
 	end)
 
+	describe("Memories tab", function()
+		local function tab()
+			return wow.categories[1].subcategories[1]
+		end
+
+		it("creates a Memories subcategory with an explanation and a checkbox", function()
+			wow.boot({})
+			assert.equal("Memories", tab().name)
+			local vars = variables(tab())
+			assert.matches("^# ", vars[1])
+			assert.equal("Paparazzi_memories", vars[#vars])
+			assert.is_nil(wow.categories[1].settings.Paparazzi_memories)
+			assert.is_not_nil(tab().settings.Paparazzi_memories)
+		end)
+
+		it("binds the checkbox to the saved variable", function()
+			wow.boot({})
+			tab().settings.Paparazzi_memories:SetValue(false)
+			assert.is_false(PaparazziDB.settings.memories)
+		end)
+
+		it("locks the checkbox while Memories is missing", function()
+			wow.boot({})
+			local checkbox = tab().items[#tab().items]
+			assert.is_false(checkbox.initializer.predicate())
+			_G.Memories = { RecordScreenshot = function() end }
+			assert.is_true(checkbox.initializer.predicate())
+		end)
+
+		it("falls back to the main category without subcategories", function()
+			wow.boot({
+				setup = function()
+					_G.Settings.RegisterVerticalLayoutSubcategory = nil
+				end,
+			})
+			assert.is_not_nil(wow.categories[1].settings.Paparazzi_memories)
+		end)
+
+		it("skips the explanation when the layout API is missing", function()
+			wow.boot({
+				setup = function()
+					_G.SettingsPanel = nil
+				end,
+			})
+			assert.equal("Paparazzi_memories", variables(tab())[1])
+		end)
+
+		it("works when the checkbox initializer has no predicate support", function()
+			assert.has_no.errors(function()
+				wow.boot({
+					setup = function()
+						_G.Settings.CreateCheckbox = function() end
+					end,
+				})
+			end)
+		end)
+	end)
+
 	it("prints usage when Settings is absent", function()
 		assert.has_no.errors(function()
 			wow.boot({

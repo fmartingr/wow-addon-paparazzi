@@ -40,6 +40,7 @@ Each trigger has an on/off switch and a delay in the settings panel. The delay i
 | Renown level | Progress | Off | 1.0 | retail |
 | New recipe | Progress | Off | 1.0 | All |
 | Traveler's Log activity | Progress | Off | 1.0 | retail, forever |
+| Profession milestone | Progress | On | 1.0 | era, tbc, titan, forever |
 | Boss kill | Combat | On | 1.0 | All |
 | Boss wipe | Combat | Off | 1.0 | All |
 | World boss kill | Combat | On | 1.0 | retail, mists, titan |
@@ -70,6 +71,15 @@ Game versions, by Interface number:
 - **forever:** 1.60.x.
 - **era:** 1.15.x.
 - **All:** all six.
+
+The **Profession milestone** trigger fires when a profession skill reaches a multiple of 75 (75, 150, 225, and so on). It covers primary and secondary professions. It reads the skill list of the game, so it does not exist in Retail or MoP Classic.
+
+## Works with Memories
+
+- Paparazzi sends a note to the Memories addon after each automatic screenshot. The note lists the trigger labels, for example `Level up, Boss kill`.
+- Paparazzi sends the same file name that the capture record stores.
+- Memories is optional. The setting is on by default. Without Memories, Paparazzi does nothing extra.
+- The checkbox **Send notes to Memories** in the **Memories** settings tab switches the notes on or off. It is locked when Memories is not installed.
 
 ## Exporter
 
