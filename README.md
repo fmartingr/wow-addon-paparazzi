@@ -72,7 +72,7 @@ Game versions, by Interface number:
 - **era:** 1.15.x.
 - **All:** all six.
 
-The **Profession milestone** trigger fires when a profession skill reaches a multiple of 75 (75, 150, 225, and so on). It covers primary and secondary professions. It reads the skill list of the game, so it does not exist in Retail or MoP Classic. A collapsed skill header in the character window hides its skills from the addon.
+The **Profession milestone** trigger fires when a profession skill reaches a multiple of 75 (75, 150, 225, and so on). It covers primary and secondary professions. It reads the skill list of the game, so it does not exist in Retail or MoP Classic.
 
 ## Works with Memories
 

@@ -226,26 +226,35 @@ Triggers.Register({
 	end,
 	default = { enabled = true, delay = 1.0 },
 	handle = function(state, event)
-		local old = state.snapshot
+		local snapshot = state.snapshot or {}
+		state.snapshot = snapshot
 		local ranks = professionRanks()
-		state.snapshot = ranks
-		if event == "PLAYER_ENTERING_WORLD" or not old then
+		if event == "PLAYER_ENTERING_WORLD" then
+			for name, rank in pairs(ranks) do
+				if snapshot[name] == nil then
+					snapshot[name] = rank
+				end
+			end
 			return nil
 		end
+
 		local names = {}
 		for name in pairs(ranks) do
 			names[#names + 1] = name
 		end
 		table.sort(names)
+		local result
 		for _, name in ipairs(names) do
-			local before, after = old[name], ranks[name]
-			if before and math.floor(after / PROFESSION_STEP) > math.floor(before / PROFESSION_STEP) then
-				return {
+			local before, after = snapshot[name], ranks[name]
+			snapshot[name] = after
+			if not result and before and math.floor(after / PROFESSION_STEP) > math.floor(before / PROFESSION_STEP) then
+				result = {
 					skillName = name,
 					rank = after,
 					milestone = math.floor(after / PROFESSION_STEP) * PROFESSION_STEP,
 				}
 			end
 		end
+		return result
 	end,
 })

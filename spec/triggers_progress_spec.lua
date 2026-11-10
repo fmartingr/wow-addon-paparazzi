@@ -363,6 +363,39 @@ describe("progress triggers", function()
 			assert.is_not_nil(wow.take("SKILL_LINES_CHANGED"))
 		end)
 
+		it("shoots for a milestone passed while the header was collapsed", function()
+			boot()
+			local saved = { lines[3], lines[4], lines[5] }
+			table.remove(lines, 3)
+			table.remove(lines, 3)
+			table.remove(lines, 3)
+			assert.is_nil(wow.take("SKILL_LINES_CHANGED"))
+			saved[2][3] = 75
+			table.insert(lines, 3, saved[3])
+			table.insert(lines, 3, saved[2])
+			table.insert(lines, 3, saved[1])
+			assert.same(
+				{ skillName = "Mining", rank = 75, milestone = 75 },
+				wow.take("SKILL_LINES_CHANGED").events[1].data
+			)
+		end)
+
+		it("keeps the old rank on PLAYER_ENTERING_WORLD so a skill-up near a loading screen still shoots", function()
+			boot()
+			lines[4][3] = 75
+			assert.is_nil(wow.take("PLAYER_ENTERING_WORLD", false, false))
+			assert.equal(75, wow.take("SKILL_LINES_CHANGED").events[1].data.milestone)
+		end)
+
+		it("adds a profession that is new on PLAYER_ENTERING_WORLD without a shot", function()
+			boot()
+			lines[#lines + 1] = { "Professions", true }
+			lines[#lines + 1] = { "Fishing", false, 74 }
+			assert.is_nil(wow.take("PLAYER_ENTERING_WORLD", false, false))
+			lines[#lines][3] = 75
+			assert.equal("Fishing", wow.take("SKILL_LINES_CHANGED").events[1].data.skillName)
+		end)
+
 		it("makes no shot on PLAYER_ENTERING_WORLD", function()
 			boot()
 			lines[4][3] = 75
