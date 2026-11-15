@@ -41,6 +41,7 @@ Each trigger has an on/off switch and a delay in the settings panel. The delay i
 | New recipe | Progress | Off | 1.0 | All |
 | Traveler's Log activity | Progress | Off | 1.0 | retail, forever |
 | Profession milestone | Progress | On | 1.0 | era, tbc, titan, forever |
+| Gold record | Progress | On | 1.0 | All |
 | Boss kill | Combat | On | 1.0 | All |
 | Boss wipe | Combat | Off | 1.0 | All |
 | World boss kill | Combat | On | 1.0 | retail, mists, titan |
@@ -73,6 +74,8 @@ Game versions, by Interface number:
 - **All:** all six.
 
 The **Profession milestone** trigger fires when a profession skill reaches a multiple of 75 (75, 150, 225, and so on). It covers primary and secondary professions. It reads the skill list of the game, so it does not exist in Retail or MoP Classic.
+
+The **Gold record** trigger fires the first time a character holds 1, 10, 100, 1000 or 10000 gold. Paparazzi saves the highest record for each character. A jump over several records gives one shot for the highest record. A character that already holds gold at the first login gets no shots for the records it passed before.
 
 ## Works with Memories
 

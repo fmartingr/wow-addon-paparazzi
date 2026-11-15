@@ -17,6 +17,7 @@ describe("DB", function()
 		assert.equal(1000, db.settings.retention)
 		assert.same({}, db.captures)
 		assert.same({}, db.visited)
+		assert.same({}, db.records)
 	end)
 
 	it("fills a setting for each registered trigger", function()

@@ -63,6 +63,7 @@ read_globals = {
 	"MapUtil",
 	"Memories",
 	"GetNumSkillLines",
+	"GetMoney",
 	"GetSkillLineInfo",
 	"TRADE_SKILLS",
 	"SECONDARY_SKILLS",

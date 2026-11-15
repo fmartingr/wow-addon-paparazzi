@@ -8,6 +8,7 @@ DB.defaults = {
 	settings = { enabled = true, memories = true, debounceCap = 5, retention = 1000, triggers = {} },
 	captures = {},
 	visited = {},
+	records = {},
 }
 
 local function copy(v)
@@ -47,7 +48,7 @@ function DB.Init(saved)
 	if type(db.schema) ~= "number" then
 		db.schema = nil
 	end
-	for _, key in ipairs({ "settings", "captures", "visited" }) do
+	for _, key in ipairs({ "settings", "captures", "visited", "records" }) do
 		if type(db[key]) ~= "table" then
 			db[key] = nil
 		end

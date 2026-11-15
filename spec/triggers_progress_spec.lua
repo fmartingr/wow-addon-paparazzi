@@ -414,3 +414,99 @@ describe("progress triggers", function()
 		end)
 	end)
 end)
+
+describe("goldRecord", function()
+	local money
+
+	local function boot(saved)
+		money = money or 0
+		wow.boot({
+			saved = saved,
+			setup = function()
+				_G.GetMoney = function()
+					return money
+				end
+			end,
+		})
+		wow.fire("PLAYER_ENTERING_WORLD", false, false)
+	end
+
+	local function gold(n)
+		return n * 10000
+	end
+
+	before_each(function()
+		money = 0
+	end)
+
+	it("shoots when the purse first reaches 1 gold", function()
+		boot()
+		money = gold(1)
+		local record = wow.take("PLAYER_MONEY")
+		assert.same({ gold = 1, copper = gold(1) }, record.events[1].data)
+		assert.equal(1, PaparazziDB.records["Kaelys-Ragnaros"].gold)
+	end)
+
+	it("does not shoot below 1 gold", function()
+		boot()
+		money = 9999
+		assert.is_nil(wow.take("PLAYER_MONEY"))
+	end)
+
+	it("shoots once for a record and not when the gold falls and rises again", function()
+		boot()
+		money = gold(10)
+		assert.is_not_nil(wow.take("PLAYER_MONEY"))
+		money = gold(2)
+		assert.is_nil(wow.take("PLAYER_MONEY"))
+		money = gold(10)
+		assert.is_nil(wow.take("PLAYER_MONEY"))
+		money = gold(100)
+		assert.equal(100, wow.take("PLAYER_MONEY").events[1].data.gold)
+	end)
+
+	it("gives one shot for the highest record after a jump", function()
+		boot()
+		money = gold(1500)
+		local record = wow.take("PLAYER_MONEY")
+		assert.equal(1, #record.events)
+		assert.equal(1000, record.events[1].data.gold)
+		assert.is_nil(wow.take("PLAYER_MONEY"))
+	end)
+
+	it("covers the 10000 gold record", function()
+		boot()
+		money = gold(10000)
+		assert.equal(10000, wow.take("PLAYER_MONEY").events[1].data.gold)
+	end)
+
+	it("gives no shots for records passed before the first login", function()
+		money = gold(500)
+		boot()
+		assert.equal(100, PaparazziDB.records["Kaelys-Ragnaros"].gold)
+		assert.is_nil(wow.take("PLAYER_MONEY"))
+		money = gold(1000)
+		assert.equal(1000, wow.take("PLAYER_MONEY").events[1].data.gold)
+	end)
+
+	it("remembers the record after a reload", function()
+		boot()
+		money = gold(10)
+		wow.take("PLAYER_MONEY")
+		boot(PaparazziDB)
+		assert.is_nil(wow.take("PLAYER_MONEY"))
+	end)
+
+	it("makes no shot on PLAYER_ENTERING_WORLD", function()
+		boot()
+		money = gold(10)
+		assert.is_nil(wow.take("PLAYER_ENTERING_WORLD", false, false))
+	end)
+
+	it("is not available without GetMoney", function()
+		local ns = wow.boot({})
+		for _, def in ipairs(ns.Triggers.Available(ns.GetFlavor())) do
+			assert.not_equal("goldRecord", def.key)
+		end
+	end)
+end)

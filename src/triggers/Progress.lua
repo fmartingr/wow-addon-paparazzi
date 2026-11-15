@@ -258,3 +258,52 @@ Triggers.Register({
 		return result
 	end,
 })
+
+local COPPER_PER_GOLD = 10000
+local GOLD_RECORDS = { 1, 10, 100, 1000, 10000 }
+
+local function goldRecordsTable()
+	local key = UnitName("player") .. "-" .. GetRealmName()
+	PaparazziDB.records[key] = PaparazziDB.records[key] or {}
+	return PaparazziDB.records[key]
+end
+
+local function highestGoldRecord(copper)
+	local highest = 0
+	for _, gold in ipairs(GOLD_RECORDS) do
+		if copper >= gold * COPPER_PER_GOLD then
+			highest = gold
+		end
+	end
+	return highest
+end
+
+-- A character that already holds gold when the addon first sees it gets no shots for the records it passed before.
+Triggers.Register({
+	key = "goldRecord",
+	label = "Gold record",
+	category = "progress",
+	events = { "PLAYER_ENTERING_WORLD", "PLAYER_MONEY" },
+	flavors = "all",
+	requires = function()
+		return type(GetMoney) == "function"
+	end,
+	default = { enabled = true, delay = 1.0 },
+	handle = function(_, event)
+		local copper = ns.Safe(GetMoney())
+		if type(copper) ~= "number" then
+			return nil
+		end
+		local records = goldRecordsTable()
+		local highest = highestGoldRecord(copper)
+		if records.gold == nil then
+			records.gold = highest
+			return nil
+		end
+		if event == "PLAYER_ENTERING_WORLD" or highest <= records.gold then
+			return nil
+		end
+		records.gold = highest
+		return { gold = highest, copper = copper }
+	end,
+})
